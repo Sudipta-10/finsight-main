@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-bg text-gray-900 font-sans min-h-screen relative overflow-x-hidden;
+    background: radial-gradient(circle at 10% 20%, rgba(99, 91, 255, 0.06), transparent 50%),
+                radial-gradient(circle at 90% 80%, rgba(0, 82, 255, 0.06), transparent 50%),
+                #F8FAFC;
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/60 backdrop-blur-xl border border-white/60 shadow-glass;
+  }
+}
