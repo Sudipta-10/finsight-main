@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '../store/auth.store'
+import Cookies from 'js-cookie'
 
 const providedUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:4000/api/v1';
 const api = axios.create({ baseURL: providedUrl.replace('localhost', '127.0.0.1') })
@@ -36,6 +37,7 @@ api.interceptors.response.use(
         return api(original)
       } catch {
         useAuthStore.getState().logout()
+        Cookies.remove('accessToken')
         if (typeof window !== 'undefined') {
           window.location.href = '/login'
         }

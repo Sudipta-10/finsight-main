@@ -13,6 +13,6 @@ export const validate = (schema: ZodSchema, target: 'body' | 'query' | 'params' 
       next(new ValidationError('Validation failed', errors));
       return;
     }
-    req[target] = result.data;
+    Object.defineProperty(req, target, { value: result.data, enumerable: true, writable: true });
     next();
   };

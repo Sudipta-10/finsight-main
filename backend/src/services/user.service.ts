@@ -50,8 +50,7 @@ export class UserService {
     const { password: _, ...updated } = await userRepository.update(id, {
       first_name: data.firstName,
       last_name: data.lastName,
-      password: data.password,
-      avatar: data.avatar
+      password: data.password
     });
     return updated;
   }

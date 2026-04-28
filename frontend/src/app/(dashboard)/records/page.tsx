@@ -140,7 +140,7 @@ export default function RecordsPage() {
                   </td>
                   <td className="px-6 py-4 text-right font-mono text-gray-900">
                     <span className={r.type === 'INCOME' ? 'text-income' : 'text-gray-900'}>
-                      {r.type === 'INCOME' ? '+' : ''}{formatCurrency(r.amount)}
+                      {r.type === 'INCOME' ? '+' : '-'}{formatCurrency(r.amount)}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right opacity-0 group-hover:opacity-100 transition-opacity">
