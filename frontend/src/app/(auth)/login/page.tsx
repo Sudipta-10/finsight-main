@@ -56,11 +56,12 @@ export default function LoginPage() {
       <div className="w-full md:w-[40%] flex flex-col justify-center px-10 sm:px-20 bg-surface shadow-2xl relative z-10">
         <h2 className="font-sans text-3xl font-medium mb-8 text-gray-900">Welcome back</h2>
         
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5" suppressHydrationWarning>
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-700">Email</label>
             <input 
               type="email" 
+              data-gramm="false"
               className={`border p-3 rounded-md transition-colors text-black focus:outline-none focus:border-primary ${error ? 'border-expense' : 'border-border'}`}
               value={email}
               onChange={e => setEmail(e.target.value)}

@@ -18,7 +18,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${dmSerifDisplay.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}>
-      <body className="font-sans bg-bg text-gray-900">{children}</body>
+      <body className="font-sans bg-bg text-gray-900" suppressHydrationWarning>{children}</body>
     </html>
   );
 }
