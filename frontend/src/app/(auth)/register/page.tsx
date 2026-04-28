@@ -2,36 +2,38 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/auth.store';
 import api from '@/lib/api';
-import Cookies from 'js-cookie';
 
-export default function LoginPage() {
+export default function RegisterPage() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const router = useRouter();
-  const setAuth = useAuthStore(state => state.setAuth);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
 
     try {
-      const res = await api.post('/auth/login', { email, password });
-      const { accessToken, refreshToken, user } = res.data;
-      
-      Cookies.set('accessToken', accessToken, { expires: 1/96 }); 
-      
-      setAuth({ accessToken, refreshToken, user });
-      router.push('/dashboard');
+      await api.post('/auth/register', { firstName, lastName, email, password });
+      setSuccess('Account created successfully! Redirecting to login...');
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
     } catch (err: any) {
       if (err.message === 'Network Error') {
         setError('Network Error: Cannot reach backend server. Check logs.');
+      } else if (err.response?.data?.errors && err.response.data.errors.length > 0) {
+        const firstError = err.response.data.errors[0];
+        setError(`Validation error: ${firstError.field} - ${firstError.message}`);
       } else {
-        setError(err.response?.data?.message || 'Invalid credentials');
+        setError(err.response?.data?.message || 'Failed to create account');
       }
     } finally {
       setLoading(false);
@@ -44,7 +46,7 @@ export default function LoginPage() {
         <h1 className="font-display text-6xl mb-6">FinSight</h1>
         <div className="w-16 h-1 bg-accent mb-8"></div>
         <p className="text-3xl font-light mb-16 max-w-md leading-tight">
-          Complete clarity over your finances.
+          Join to get clarity over your finances.
         </p>
         <div className="flex gap-2">
           <div className="w-2 h-2 rounded-full bg-accent"></div>
@@ -54,9 +56,34 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full md:w-[40%] flex flex-col justify-center px-10 sm:px-20 bg-surface shadow-2xl relative z-10">
-        <h2 className="font-sans text-3xl font-medium mb-8 text-gray-900">Welcome back</h2>
+        <h2 className="font-sans text-3xl font-medium mb-8 text-gray-900">Sign Up</h2>
         
         <form onSubmit={handleSubmit} className="flex flex-col gap-5" suppressHydrationWarning>
+          <div className="flex gap-4">
+            <div className="flex flex-col gap-2 w-1/2">
+              <label className="text-sm font-medium text-gray-700">First Name</label>
+              <input 
+                type="text" 
+                data-gramm="false"
+                className={`border p-3 rounded-md transition-colors text-black focus:outline-none focus:border-primary ${error ? 'border-expense' : 'border-border'}`}
+                value={firstName}
+                onChange={e => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="flex flex-col gap-2 w-1/2">
+              <label className="text-sm font-medium text-gray-700">Last Name</label>
+              <input 
+                type="text" 
+                data-gramm="false"
+                className={`border p-3 rounded-md transition-colors text-black focus:outline-none focus:border-primary ${error ? 'border-expense' : 'border-border'}`}
+                value={lastName}
+                onChange={e => setLastName(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-700">Email</label>
             <input 
@@ -81,21 +108,22 @@ export default function LoginPage() {
           </div>
 
           {error && <p className="text-expense text-sm">{error}</p>}
+          {success && <p className="text-income text-sm">{success}</p>}
 
           <button 
             type="submit" 
-            disabled={loading}
+            disabled={loading || !!success}
             className="mt-4 bg-primary hover:bg-primary-hover text-white p-3 rounded-md font-medium transition-colors disabled:opacity-70 flex justify-center items-center"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Creating Account...' : 'Sign Up as Viewer'}
           </button>
         </form>
 
         <p className="mt-8 text-sm text-text-subtle text-center">
-          Don't have an account? <a href="/register" className="text-primary hover:underline font-medium">Sign up as Viewer</a>
+          Already have an account? <a href="/login" className="text-primary hover:underline font-medium">Sign In</a>
         </p>
         <p className="mt-2 text-xs text-text-subtle text-center italic">
-          Note: Only an admin can add or upgrade users to Analyst/Admin roles.
+          Note: Only an admin can add or upgrade users to Analyst/Admin roles. By default, you will be assigned the Viewer role.
         </p>
       </div>
     </div>
