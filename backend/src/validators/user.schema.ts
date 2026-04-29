@@ -12,6 +12,7 @@ export const createUserSchema = z.object({
 export const updateUserSchema = z.object({
   role: z.enum([Role.VIEWER, Role.ANALYST, Role.ADMIN]).optional(),
   isActive: z.boolean().optional(),
+  approvalStatus: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
 });
 
 export const updateMeSchema = z.object({

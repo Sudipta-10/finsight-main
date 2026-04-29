@@ -20,13 +20,25 @@ export class UserService {
     });
   }
 
-  async update(id: string, data: { role?: string; isActive?: boolean }) {
+  async update(id: string, data: { role?: string; isActive?: boolean; approvalStatus?: string }) {
     const user = await userRepository.findById(id);
     if (!user) throw new AppError('User not found', 404);
-    return await userRepository.update(id, {
+    
+    const updateData: any = {
       role: data.role as any,
       is_active: data.isActive
-    });
+    };
+    
+    if (data.approvalStatus) {
+      updateData.approval_status = data.approvalStatus;
+      if (data.approvalStatus === 'APPROVED') {
+        updateData.is_active = true;
+      } else {
+        updateData.is_active = false;
+      }
+    }
+
+    return await userRepository.update(id, updateData);
   }
 
   async getMe(id: string) {

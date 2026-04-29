@@ -12,11 +12,19 @@ export class AuthService {
       throw new AppError('Email already in use', 409);
     }
     const hash = await bcrypt.hash(data.password, 12);
+    
+    const role = data.role || 'VIEWER';
+    const approval_status = role === 'VIEWER' ? 'APPROVED' : 'PENDING';
+    const is_active = role === 'VIEWER' ? true : false;
+    
     const user = await userRepository.create({
       email: data.email,
       password: hash,
       first_name: data.firstName,
-      last_name: data.lastName
+      last_name: data.lastName,
+      role,
+      approval_status,
+      is_active
     });
     return user;
   }
@@ -27,7 +35,15 @@ export class AuthService {
     
     const isValid = await bcrypt.compare(password, user.password!);
     if (!isValid) throw new AppError('Invalid credentials', 401);
-    if (!user.is_active) throw new AppError('Account is inactive', 403);
+    
+    if (!user.is_active) {
+      if (user.approval_status === 'PENDING') {
+        throw new AppError('Your account is pending admin approval.', 403);
+      } else if (user.approval_status === 'REJECTED') {
+        throw new AppError('Your account request was declined by the admin.', 403);
+      }
+      throw new AppError('Account is inactive', 403);
+    }
     
     const accessToken = jwt.sign(
       { sub: user.id, email: user.email, role: user.role },

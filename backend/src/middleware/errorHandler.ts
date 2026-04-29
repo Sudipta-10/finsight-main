@@ -19,6 +19,7 @@ export const errorHandler = (
   }
   
   console.error(err);
+  require('fs').appendFileSync('/tmp/finsight-error.log', err.stack + '\n');
   return res.status(500).json({
     statusCode: 500,
     message: 'Internal server error',

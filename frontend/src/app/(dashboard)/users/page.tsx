@@ -82,18 +82,42 @@ export default function UsersPage() {
                   <td className="px-6 py-4">
                     <span className="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md text-xs font-semibold">{u.role}</span>
                   </td>
-                  <td className="px-6 py-4 flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${u.is_active ? 'bg-income' : 'bg-gray-300'}`}></div>
-                    {u.is_active ? 'Active' : 'Inactive'}
+                  <td className="px-6 py-4 flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${u.is_active ? 'bg-income' : 'bg-gray-300'}`}></div>
+                      {u.is_active ? 'Active' : 'Inactive'}
+                    </div>
+                    {u.approval_status !== 'APPROVED' && (
+                      <span className={`text-xs font-semibold ${u.approval_status === 'PENDING' ? 'text-amber-600' : 'text-expense'}`}>
+                        {u.approval_status}
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-gray-500">{format(new Date(u.created_at), 'MMM d, yyyy')}</td>
                   <td className="px-6 py-4 text-right">
-                    <button 
-                      onClick={() => toggleStatus(u)}
-                      className={`text-xs font-medium px-3 py-1.5 rounded-md border ${u.is_active ? 'border-gray-200 text-gray-600 hover:bg-gray-50' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
-                    >
-                      {u.is_active ? 'Deactivate' : 'Activate'}
-                    </button>
+                    {u.approval_status === 'PENDING' ? (
+                      <div className="flex justify-end gap-2">
+                        <button 
+                          onClick={async () => { await api.patch(`/users/${u.id}`, { approvalStatus: 'APPROVED' }); loadUsers(); }}
+                          className="text-xs font-medium px-3 py-1.5 rounded-md bg-income text-white hover:opacity-90"
+                        >
+                          Approve
+                        </button>
+                        <button 
+                          onClick={async () => { await api.patch(`/users/${u.id}`, { approvalStatus: 'REJECTED' }); loadUsers(); }}
+                          className="text-xs font-medium px-3 py-1.5 rounded-md bg-expense text-white hover:opacity-90"
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={() => toggleStatus(u)}
+                        className={`text-xs font-medium px-3 py-1.5 rounded-md border ${u.is_active ? 'border-gray-200 text-gray-600 hover:bg-gray-50' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
+                      >
+                        {u.is_active ? 'Deactivate' : 'Activate'}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))

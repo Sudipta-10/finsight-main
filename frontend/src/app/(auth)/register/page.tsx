@@ -9,6 +9,7 @@ export default function RegisterPage() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('VIEWER');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -21,8 +22,12 @@ export default function RegisterPage() {
     setSuccess('');
 
     try {
-      await api.post('/auth/register', { firstName, lastName, email, password });
-      setSuccess('Account created successfully! Redirecting to login...');
+      await api.post('/auth/register', { firstName, lastName, email, password, role });
+      if (role === 'VIEWER') {
+        setSuccess('Account created successfully! Redirecting to login...');
+      } else {
+        setSuccess('Account created! Your account is pending admin approval. Redirecting to login...');
+      }
       setTimeout(() => {
         router.push('/login');
       }, 2000);
@@ -97,6 +102,19 @@ export default function RegisterPage() {
           </div>
 
           <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium text-gray-700">Role Selection</label>
+            <select
+              className={`border p-3 rounded-md transition-colors text-black focus:outline-none focus:border-primary ${error ? 'border-expense' : 'border-border'}`}
+              value={role}
+              onChange={e => setRole(e.target.value)}
+              required
+            >
+              <option value="VIEWER">Viewer (Read-only, Instant access)</option>
+              <option value="ANALYST">Analyst (Edit access, Requires Admin Approval)</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-gray-700">Password</label>
             <input 
               type="password" 
@@ -115,7 +133,7 @@ export default function RegisterPage() {
             disabled={loading || !!success}
             className="mt-4 bg-primary hover:bg-primary-hover text-white p-3 rounded-md font-medium transition-colors disabled:opacity-70 flex justify-center items-center"
           >
-            {loading ? 'Creating Account...' : 'Sign Up as Viewer'}
+            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
 
